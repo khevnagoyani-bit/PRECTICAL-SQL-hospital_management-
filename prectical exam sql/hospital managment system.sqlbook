@@ -465,3 +465,276 @@ INNER JOIN Doctor_Department dd
 INNER JOIN Departments dep
     ON dd.department_id = dep.department_id;
 -- SQLBook: Markup
+#### Get all patients who have completed appointments using LEFT JOIN.
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT 
+    p.patient_id,
+    p.name AS patient_name,
+    a.appointment_id,
+    a.appointment_date,
+    a.status
+FROM Patients p
+LEFT JOIN Appointments a
+    ON p.patient_id = a.patient_id
+WHERE a.status = 'Completed';
+-- SQLBook: Markup
+#### Find appointments that have no payments using RIGHT JOIN
+
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT 
+    a.appointment_id,
+    a.patient_id,
+    a.doctor_id,
+    a.appointment_date,
+    a.status,
+    b.invoice_id,
+    b.payment_status
+FROM Billing b
+RIGHT JOIN Appointments a
+    ON b.appointment_id = a.appointment_id
+WHERE b.invoice_id IS NULL;
+-- SQLBook: Markup
+#### Show patients who have never booked an appointment using FULL OUTER JOIN.
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT 
+    p.patient_id,
+    p.name AS patient_name
+FROM Patients p
+LEFT JOIN Appointments a
+    ON p.patient_id = a.patient_id
+WHERE a.appointment_id IS NULL
+
+UNION
+
+SELECT 
+    p.patient_id,
+    p.name AS patient_name
+FROM Patients p
+RIGHT JOIN Appointments a
+    ON p.patient_id = a.patient_id
+WHERE p.patient_id IS NULL;
+-- SQLBook: Markup
+## Q-8 Use Subqueries
+-- SQLBook: Markup
+#### Find doctors who have handled more than 50 patients.
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT 
+    d.doctor_id,
+    d.name AS doctor_name,
+    COUNT(DISTINCT a.patient_id) AS total_patients
+FROM Doctors d
+INNER JOIN Appointments a
+    ON d.doctor_id = a.doctor_id
+GROUP BY d.doctor_id, d.name
+HAVING COUNT(DISTINCT a.patient_id) > 50;
+-- SQLBook: Markup
+#### Identify the patient who has spent the most on treatments.
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT 
+    p.patient_id,
+    p.name AS patient_name,
+    SUM(b.amount) AS total_spent
+FROM Patients p
+INNER JOIN Billing b
+    ON p.patient_id = b.patient_id
+WHERE b.payment_status = 'Paid'
+GROUP BY p.patient_id, p.name
+ORDER BY total_spent DESC
+LIMIT 1;
+-- SQLBook: Markup
+#### Get appointments where the doctor specializes in Dermatology.
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT 
+    p.patient_id,
+    p.name AS patient_name,
+    SUM(b.amount) AS total_spent
+FROM Patients p
+INNER JOIN Billing b
+    ON p.patient_id = b.patient_id
+WHERE b.payment_status = 'Paid'
+GROUP BY p.patient_id, p.name
+ORDER BY total_spent DESC
+LIMIT 1;
+-- SQLBook: Markup
+## Q-9 Implement Date & Time Functions
+-- SQLBook: Markup
+#### Extract the month from appointment_date to count visits per month.
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT 
+    MONTH(appointment_date) AS month_number,
+    MONTHNAME(appointment_date) AS month_name,
+    COUNT(*) AS total_visits
+FROM Appointments
+GROUP BY MONTH(appointment_date), MONTHNAME(appointment_date)
+ORDER BY month_number;
+-- SQLBook: Markup
+#### Calculate the total hospital stay duration by subtracting admission_date from discharge_date.
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT 
+    admission_date,
+    discharge_date,
+    DATEDIFF(discharge_date, admission_date) AS stay_duration_days
+FROM Medical_Records;
+-- SQLBook: Markup
+#### Format treatment_date as DD-MM-YYYY.
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT 
+    treatment_date,
+    DATE_FORMAT(treatment_date, '%d-%m-%Y') AS formatted_treatment_date
+FROM Medical_Records;
+-- SQLBook: Markup
+## Q-10 Use String Manipulation Functions
+-- SQLBook: Markup
+#### Convert all patient names to uppercase.
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT 
+    patient_id,
+    UPPER(name) AS patient_name
+FROM Patients;
+-- SQLBook: Markup
+#### Trim whitespace from doctor names.
+-- SQLBook: Markup
+#### Replace missing phone numbers with "Not Available".
+
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT 
+    patient_id,
+    name,
+    COALESCE(phone_number, 'Not Available') AS phone_number
+FROM Patients;
+-- SQLBook: Markup
+#### Format treatment_date as DD-MM-YYYY
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT 
+    treatment_date,
+    DATE_FORMAT(treatment_date, '%d-%m-%Y') AS formatted_treatment_date
+FROM Medical_Records;
+-- SQLBook: Markup
+## Q-11 Implement Window Functions 
+-- SQLBook: Markup
+#### Rank doctors based on the number of patients they have treated.
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT
+    d.doctor_id,
+    d.name AS doctor_name,
+    COUNT(DISTINCT a.patient_id) AS total_patients,
+    RANK() OVER (
+        ORDER BY COUNT(DISTINCT a.patient_id) DESC
+    ) AS doctor_rank
+FROM Doctors d
+LEFT JOIN Appointments a
+    ON d.doctor_id = a.doctor_id
+GROUP BY d.doctor_id, d.name
+ORDER BY doctor_rank;
+-- SQLBook: Markup
+#### Show the cumulative revenue per month.
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT 
+    DATE_FORMAT(payment_date, '%Y-%m') AS month,
+    SUM(amount) AS monthly_revenue,
+    SUM(SUM(amount)) OVER (
+        ORDER BY DATE_FORMAT(payment_date, '%Y-%m')
+    ) AS cumulative_revenue
+FROM Billing
+WHERE payment_status = 'Paid'
+GROUP BY DATE_FORMAT(payment_date, '%Y-%m')
+ORDER BY month;
+-- SQLBook: Markup
+#### Display the running total of appointments made.
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT 
+    appointment_date,
+    appointment_id,
+    COUNT(*) OVER (
+        ORDER BY appointment_date, appointment_id
+    ) AS running_total_appointments
+FROM Appointments
+ORDER BY appointment_date, appointment_id;
+-- SQLBook: Markup
+## Q-12 Apply SQL CASE Expressions
+-- SQLBook: Markup
+#### * Assign a Patient_Risk_Level:
+	• "High" if they have more than 5 medical records.
+	• "Medium" if they have 3–5 records.
+	• "Low" otherwise.
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT 
+    p.patient_id,
+    p.name AS patient_name,
+    COUNT(mr.patient_id) AS total_records,
+    CASE
+        WHEN COUNT(mr.patient_id) > 5 THEN 'High'
+        WHEN COUNT(mr.patient_id) BETWEEN 3 AND 5 THEN 'Medium'
+        ELSE 'Low'
+    END AS Patient_Risk_Level
+FROM Patients p
+LEFT JOIN Medical_Records mr
+    ON p.patient_id = mr.patient_id
+GROUP BY p.patient_id, p.name
+ORDER BY p.patient_id;
+-- SQLBook: Markup
+#### *Categorize doctour:
+ . "Senior" if they have more than 15 years of experirnce
+ . " mid-leval" if they have 5-15 years
+ . "junior" otherwise
+-- SQLBook: Code
+USE hospital_management;
+
+USE hospital_management;
+
+ALTER TABLE Doctors
+ADD experience_years INT;
+
+UPDATE Doctors SET experience_years = 18 WHERE doctor_id = 10;
+UPDATE Doctors SET experience_years = 12 WHERE doctor_id = 11;
+UPDATE Doctors SET experience_years = 7  WHERE doctor_id = 12;
+UPDATE Doctors SET experience_years = 20 WHERE doctor_id = 13;
+UPDATE Doctors SET experience_years = 16 WHERE doctor_id = 14;
+UPDATE Doctors SET experience_years = 4  WHERE doctor_id = 15;
+UPDATE Doctors SET experience_years = 10 WHERE doctor_id = 16;
+UPDATE Doctors SET experience_years = 22 WHERE doctor_id = 17;
+UPDATE Doctors SET experience_years = 6  WHERE doctor_id = 18;
+UPDATE Doctors SET experience_years = 3  WHERE doctor_id = 19;
+
+SELECT
+    doctor_id,
+    name AS doctor_name,
+    experience_years,
+    CASE
+        WHEN experience_years > 15 THEN 'Senior'
+        WHEN experience_years BETWEEN 5 AND 15 THEN 'Mid-Level'
+        ELSE 'Junior'
+    END AS doctor_category
+FROM Doctors;
