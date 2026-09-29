@@ -1,0 +1,467 @@
+-- SQLBook: Markup
+# 1. PATIENTS TABLE
+-- SQLBook: Code
+CREATE DATABASE IF NOT EXISTS hospital_management;
+
+USE hospital_management;
+-- SQLBook: Code
+CREATE TABLE Patients (
+    patient_id INT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    dob DATE NOT NULL,
+    gender VARCHAR(10),
+    phone_number VARCHAR(20),
+    email VARCHAR(100),
+    address VARCHAR(255),
+    registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+INSERT INTO Patients (patient_id, name, dob, gender, phone_number, email, address, registration_date) VALUES
+(1, 'John Doe', '1985-05-12', 'Male', '555-0101', 'john.doe@email.com', '123 Elm St, Springfield', '2025-01-10'),
+(2, 'Jane Smith', '1992-08-24', 'Female', '555-0102', 'jane.smith@email.com', '456 Oak Ave, Metropolis', '2025-02-01'),
+(3, 'Robert Johnson', '1978-11-03', 'Male', '555-0103', 'robert.j@email.com', '789 Pine Rd, Gotham', '2025-02-15'),
+(4, 'Emily Davis', '2000-01-15', 'Female', '555-0104', 'emily.d@email.com', '321 Maple Dr, Star City', '2025-03-01'),
+(5, 'Michael Brown', '1965-07-22', 'Male', '555-0105', 'michael.b@email.com', '654 Cedar Ln, Central City', '2025-03-10'),
+(6, 'Linda Wilson', '1988-03-30', 'Female', '555-0106', 'linda.w@email.com', '987 Birch Blvd, Coast City', '2025-03-25'),
+(7, 'David Jones', '1973-12-12', 'Male', '555-0107', 'david.j@email.com', '147 Walnut St, Bludhaven', '2025-04-12'),
+(8, 'Susan Miller', '1995-05-18', 'Female', '555-0108', 'susan.m@email.com', '258 Chestnut Rd, Hub City', '2025-04-30'),
+(9, 'James Taylor', '1959-10-05', 'Male', '555-0109', 'james.t@email.com', '369 Ash Ave, Midway City', '2025-05-14'),
+(10, 'Karen Anderson', '1982-02-14', 'Female', '555-0110', 'karen.a@email.com', '741 Cherry Dr, Opal City', '2025-06-01');
+
+-- SQLBook: Markup
+# 2 DOCTOR TABLE
+-- SQLBook: Code
+
+USE hospital_management;
+
+CREATE TABLE Doctors (
+    doctor_id INT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    specialization VARCHAR(100) NOT NULL,
+    phone_number VARCHAR(20),
+    email VARCHAR(100),
+    available_days VARCHAR(100), -- Format example: 'Mon, Wed, Fri'
+    consultation_fee DECIMAL(10, 2) NOT NULL
+);
+
+
+INSERT INTO Doctors (doctor_id, name, specialization, phone_number, email, available_days, consultation_fee) VALUES
+(10, 'Dr. Sarah Connor', 'Cardiology', '555-0210', 'sarah.c@hospital.com', 'Mon, Wed, Fri', 150.00),
+(11, 'Dr. David Bruce', 'Internal Medicine', '555-0211', 'david.b@hospital.com', 'Tue, Thu, Sat', 100.00),
+(12, 'Dr. Elena Rostova', 'Endocrinology', '555-0212', 'elena.r@hospital.com', 'Mon, Tue, Thu', 130.00),
+(13, 'Dr. Charles Xavier', 'Psychiatry', '555-0213', 'charles.x@hospital.com', 'Wed, Fri', 200.00),
+(14, 'Dr. Stephen Strange', 'Neurology', '555-0214', 'stephen.s@hospital.com', 'Mon, Thu', 250.00),
+(15, 'Dr. Reed Richards', 'General Practice', '555-0215', 'reed.r@hospital.com', 'Mon, Tue, Wed, Thu, Fri', 80.00),
+(16, 'Dr. Meredith Grey', 'General Surgery', '555-0216', 'meredith.g@hospital.com', 'Tue, Wed, Fri', 180.00),
+(17, 'Dr. Gregory House', 'Diagnostic Medicine', '555-0217', 'gregory.h@hospital.com', 'Mon, Tue', 300.00),
+(18, 'Dr. John Watson', 'General Practice', '555-0218', 'john.w@hospital.com', 'Wed, Thu, Sat', 85.00),
+(19, 'Dr. Beverly Crusher', 'Pediatrics', '555-0219', 'beverly.c@hospital.com', 'Mon, Wed, Thu', 110.00);
+
+-- SQLBook: Markup
+# 3 APPOINTMENT
+-- SQLBook: Code
+
+USE hospital_management;
+
+CREATE TABLE Appointments (
+    appointment_id INT PRIMARY KEY,
+    patient_id INT,
+    doctor_id INT,
+    appointment_date DATETIME NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    FOREIGN KEY (patient_id) REFERENCES Patients(patient_id),
+    FOREIGN KEY (doctor_id) REFERENCES Doctors(doctor_id),
+    CONSTRAINT chk_status CHECK (status IN ('Scheduled', 'Completed', 'Cancelled'))
+);
+
+INSERT INTO Appointments (appointment_id, patient_id, doctor_id, appointment_date, status) VALUES
+(501, 1, 10, '2026-10-01 09:30:00', 'Scheduled'),
+(502, 2, 12, '2026-10-01 10:45:00', 'Scheduled'),
+(503, 3, 11, '2026-10-02 14:00:00', 'Completed'),
+(504, 4, 15, '2026-10-02 16:15:00', 'Cancelled'),
+(505, 5, 13, '2026-10-03 11:00:00', 'Scheduled'),
+(506, 6, 14, '2026-10-03 15:30:00', 'Completed'),
+(507, 7, 16, '2026-10-04 09:00:00', 'Scheduled'),
+(508, 8, 17, '2026-10-04 13:00:00', 'Scheduled'),
+(509, 9, 18, '2026-10-05 10:00:00', 'Completed'),
+(510, 10, 19, '2026-10-05 11:30:00', 'Cancelled');
+
+-- SQLBook: Markup
+# 4 MEDICAL RECODS TABLE
+-- SQLBook: Code
+
+USE hospital_management;
+
+CREATE TABLE Medical_Records (
+    record_id INT PRIMARY KEY,
+    patient_id INT,
+    doctor_id INT,
+    diagnosis VARCHAR(255) NOT NULL,
+    prescription VARCHAR(255),
+    treatment_date DATE NOT NULL,
+    FOREIGN KEY (patient_id) REFERENCES Patients(patient_id),
+    FOREIGN KEY (doctor_id) REFERENCES Doctors(doctor_id)
+);
+
+INSERT INTO Medical_Records (record_id, patient_id, doctor_id, diagnosis, prescription, treatment_date) VALUES
+(101, 1, 10, 'Hypertension', 'Lisinopril 10mg once daily', '2026-09-15'),
+(102, 2, 12, 'Type 2 Diabetes', 'Metformin 500mg twice daily', '2026-09-16'),
+(103, 3, 11, 'Acute Bronchitis', 'Amoxicillin 500mg & Cough Syrup', '2026-09-18'),
+(104, 4, 15, 'Migraine', 'Sumatriptan 50mg as needed', '2026-09-20'),
+(105, 5, 13, 'Generalized Anxiety Disorder', 'Escitalopram 10mg daily', '2026-09-21'),
+(106, 6, 14, 'Asthma Flare-up', 'Albuterol Inhaler 2 puffs every 4 hours', '2026-09-22'),
+(107, 7, 16, 'Acute Appendicitis', 'Post-Op Antibiotics & Ibuprofen', '2026-09-24'),
+(108, 8, 17, 'Lyme Disease', 'Doxycycline 100mg twice daily', '2026-09-25'),
+(109, 9, 18, 'Osteoarthritis', 'Naproxen 500mg as needed', '2026-09-28'),
+(110, 10, 19, 'Streptococcal Pharyngitis', 'Penicillin V 500mg', '2026-09-29');
+
+-- SQLBook: Markup
+# 5 Billing table
+-- SQLBook: Code
+
+USE hospital_management;
+
+CREATE TABLE Billing (
+    invoice_id INT PRIMARY KEY,
+    patient_id INT ,
+    appointment_id INT ,
+    amount DECIMAL(10, 2) ,
+    payment_status VARCHAR(20) ,
+    payment_date DATE ,
+    FOREIGN KEY (patient_id) REFERENCES Patients(patient_id),
+    FOREIGN KEY (appointment_id) REFERENCES Appointments(appointment_id),
+    CONSTRAINT chk_payment_status CHECK (payment_status IN ('Paid', 'Pending', 'Cancelled'))
+);
+
+INSERT INTO Billing (invoice_id, patient_id, appointment_id, amount, payment_status, payment_date) VALUES
+(901, 1, 501, 150.00, 'Pending', '1000-01-01'),
+(902, 2, 502, 130.00, 'Paid', '2026-09-29'),
+(903, 3, 503, 100.00, 'Paid', '2026-10-02'),
+(904, 4, 504, 80.00, 'Cancelled', '1000-01-01'),
+(905, 5, 505, 200.00, 'Pending', '1000-01-01'),
+(906, 6, 506, 250.00, 'Paid', '2026-10-03'),
+(907, 7, 507, 180.00, 'Pending', '1000-01-01'),
+(908, 8, 508, 300.00, 'Paid', '2026-10-04'),
+(909, 9, 509, 85.00, 'Paid', '2026-10-05'),
+(910, 10, 510, 110.00, 'Cancelled', '1000-01-01');
+-- SQLBook: Markup
+# 6 Departments
+-- SQLBook: Code
+
+USE hospital_management;
+
+CREATE TABLE Departments (
+    department_id INT PRIMARY KEY,
+    department_name VARCHAR(100) NOT NULL
+);
+
+INSERT INTO Departments (department_id, department_name) VALUES
+(1, 'Cardiology'),
+(2, 'Internal Medicine'),
+(3, 'Endocrinology'),
+(4, 'Psychiatry'),
+(5, 'Neurology'),
+(6, 'General Practice'),
+(7, 'General Surgery'),
+(8, 'Diagnostic Medicine'),
+(9, 'Pediatrics'),
+(10, 'Orthopedics');
+
+-- SQLBook: Markup
+# 7 Doctor Department
+-- SQLBook: Code
+USE hospital_management;
+
+CREATE TABLE Doctor_Department (
+    doctor_id INT NOT NULL,
+    department_id INT NOT NULL,
+    PRIMARY KEY (doctor_id, department_id),
+    FOREIGN KEY (doctor_id) REFERENCES Doctors(doctor_id),
+    FOREIGN KEY (department_id) REFERENCES Departments(department_id)
+);
+
+INSERT INTO Doctor_Department (doctor_id, department_id) VALUES
+(10, 1), 
+(11, 2), 
+(12, 3),  
+(13, 4),  
+(14, 5),  
+(15, 6),  
+(16, 7),  
+(17, 8),  
+(18, 6),  
+(19, 9);  
+-- SQLBook: Markup
+## Q-1 Implement CRUD Operations
+-- SQLBook: Markup
+#### Insert new patients, doctors, and appointments into the database
+-- SQLBook: Code
+
+USE hospital_management;
+
+INSERT INTO Patients (patient_id, name, dob, gender, phone_number, email, address, registration_date) VALUES
+(21, 'Clark Kent', '1980-06-18', 'Male', '555-0121', 'clark.k@email.com', '321 Rural Rd, Smallville', '2026-09-29'),
+(22, 'Lois Lane', '1984-03-02', 'Female', '555-0122', 'lois.l@email.com', '789 Highrise Ave, Metropolis', '2026-09-29'),
+(23, 'Hal Jordan', '1989-02-20', 'Male', '555-0123', 'hal.j@email.com', '456 Runway Dr, Coast City', '2026-09-29');
+
+INSERT INTO Doctors (doctor_id, name, specialization, phone_number, email, available_days, consultation_fee) VALUES
+(31, 'Dr. Nick Riviera', 'General Practice', '555-0231', 'nick.r@hospital.com', 'Tue, Thu', 50.00),
+(32, 'Dr. Julius Hibbert', 'Pediatrics', '555-0232', 'julius.h@hospital.com', 'Mon, Wed, Fri', 175.00),
+(33, 'Dr. Frasier Crane', 'Psychiatry', '555-0233', 'frasier.c@hospital.com', 'Mon, Tue, Wed', 220.00);
+
+INSERT INTO Appointments (appointment_id, patient_id, doctor_id, appointment_date, status) VALUES
+(531, 21, 31, '2026-10-12 09:00:00', 'Scheduled'),
+(532, 22, 32, '2026-10-12 10:30:00', 'Scheduled'),
+(533, 23, 33, '2026-10-13 14:00:00', 'Scheduled');
+
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT * FROM Patients;
+
+SELECT * FROM Doctors;
+
+SELECT * FROM Appointments;
+
+-- SQLBook: Markup
+#### Update patient details when they change addresses.
+-- SQLBook: Code
+
+USE hospital_management;
+
+UPDATE Patients 
+SET address = 'Flat 402, Sai Residence, Juhu Scheme, Mumbai, Maharashtra' 
+WHERE patient_id = 1;
+
+
+UPDATE Patients
+SET address = CASE patient_id
+    WHEN 2 THEN 'H-12, Sector 15, Rohini, New Delhi'                          
+    WHEN 3 THEN 'No. 45, 3rd Cross, Indiranagar, Bangalore, Karnataka'         
+    WHEN 4 THEN 'Plot 108, Shanti Nagar, Near Station, Surat, Gujarat'         
+    ELSE address 
+END
+WHERE patient_id IN (2, 3, 4);
+
+
+
+SELECT patient_id, name, address, phone_number 
+FROM Patients 
+WHERE patient_id IN (1, 2, 3, 4);
+
+-- SQLBook: Markup
+#### Delete cancelled appointments older than 6 months
+-- SQLBook: Code
+
+USE hospital_management;
+
+SELECT appointment_id, patient_id, appointment_date, status 
+FROM Appointments 
+WHERE status = 'Cancelled' 
+  AND appointment_date < NOW() - INTERVAL 6 MONTH;
+
+DELETE FROM Appointments 
+WHERE status = 'Cancelled' 
+  AND appointment_date < NOW() - INTERVAL 6 MONTH;
+
+-- SQLBook: Markup
+## Q-2 Use SQL Clauses
+-- SQLBook: Markup
+#### Find all patients registered in the last year.
+-- SQLBook: Code
+
+USE hospital_management;
+
+SELECT 
+    patient_id, 
+    name, 
+    gender, 
+    email, 
+    registration_date
+FROM Patients
+WHERE registration_date >= NOW() - INTERVAL 1 YEAR
+ORDER BY registration_date DESC;
+
+-- SQLBook: Markup
+#### Get the top 5 highest-paying patients.
+-- SQLBook: Code
+
+USE hospital_management;
+
+SELECT 
+    p.patient_id AS 'Patient ID',
+    p.name AS 'Patient Name',
+    p.phone_number AS 'Phone Number',
+    SUM(b.amount) AS 'Total Amount Paid'
+FROM Billing b
+JOIN Patients p ON b.patient_id = p.patient_id
+WHERE b.payment_status = 'Paid'
+GROUP BY p.patient_id, p.name, p.phone_number
+ORDER BY 'Total Amount Paid' DESC
+LIMIT 5;
+
+-- SQLBook: Markup
+#### Retrieve doctors who charge more than ₹1,000.
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT doctor_id, name, specialization, consultation_fee
+FROM Doctors
+WHERE consultation_fee > 1000;
+-- SQLBook: Markup
+## Q-3 Apply SQL Operators
+-- SQLBook: Markup
+#### Find appointments where status = 'Scheduled' AND doctor_id = 3.
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT *
+FROM Appointments
+WHERE status = 'Scheduled'
+AND doctor_id = 3;
+-- SQLBook: Markup
+### Retrieve doctors who specialize in Cardiology OR Neurology.
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT *
+FROM Doctors
+WHERE specialization = 'Cardiology'
+   OR specialization = 'Neurology';
+-- SQLBook: Markup
+#### Get patients who have NOT visited in the past year.
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT p.*
+FROM Patients p
+WHERE p.patient_id NOT IN (
+    SELECT DISTINCT patient_id
+    FROM Appointments
+    WHERE appointment_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+);
+-- SQLBook: Markup
+## Q-4 Sorting & Grouping Data
+-- SQLBook: Markup
+#### List all doctors sorted by specialization
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT *
+FROM Doctors
+ORDER BY specialization ASC;
+-- SQLBook: Markup
+#### Display the number of patients assigned to each doctor.
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT doctor_id, COUNT(DISTINCT patient_id) AS patient_count
+FROM Appointments
+GROUP BY doctor_id;
+-- SQLBook: Markup
+#### Show total revenue generated per department
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT 
+    dep.department_name,
+    SUM(b.amount) AS total_revenue
+FROM Billing b
+JOIN Appointments a
+    ON b.appointment_id = a.appointment_id
+JOIN Doctor_Department dd
+    ON a.doctor_id = dd.doctor_id
+JOIN Departments dep
+    ON dd.department_id = dep.department_id
+WHERE b.payment_status = 'Paid'
+GROUP BY dep.department_id, dep.department_name
+ORDER BY total_revenue DESC;
+-- SQLBook: Markup
+## Q-5 Use Aggregate Functions
+-- SQLBook: Markup
+#### Find the total revenue collected.
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT SUM(amount) AS total_revenue_collected
+FROM Billing
+WHERE payment_status = 'Paid';
+-- SQLBook: Markup
+#### Identify the most visited doctor.
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT 
+    d.doctor_id,
+    d.name,
+    COUNT(a.appointment_id) AS total_visits
+FROM Doctors d
+JOIN Appointments a
+    ON d.doctor_id = a.doctor_id
+GROUP BY d.doctor_id, d.name
+ORDER BY total_visits DESC
+LIMIT 1;
+-- SQLBook: Markup
+#### Calculate the average consultation fee.
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT AVG(consultation_fee) AS average_consultation_fee
+FROM Doctors;
+-- SQLBook: Markup
+## Q-6 Establish Primary & Foreign Key Relationships 
+-- SQLBook: Markup
+#### Ensure medical records are linked to correct patients and doctors.
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT
+    mr.record_id,
+    mr.patient_id,
+    p.name AS patient_name,
+    mr.doctor_id,
+    d.name AS doctor_name,
+    mr.diagnosis,
+    mr.prescription,
+    mr.treatment_date
+FROM Medical_Records mr
+INNER JOIN Patients p
+    ON mr.patient_id = p.patient_id
+INNER JOIN Doctors d
+    ON mr.doctor_id = d.doctor_id;
+-- SQLBook: Markup
+#### Establish relationships between invoices and appointments.
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT
+    b.invoice_id,
+    b.patient_id,
+    b.appointment_id,
+    a.doctor_id,
+    a.appointment_date,
+    a.status AS appointment_status,
+    b.amount,
+    b.payment_status,
+    b.payment_date
+FROM Billing b
+INNER JOIN Appointments a
+    ON b.appointment_id = a.appointment_id;
+-- SQLBook: Markup
+## Q-7 Implement Joins
+-- SQLBook: Markup
+#### Retrieve a list of doctors along with their department names using INNER JOIN.
+-- SQLBook: Code
+USE hospital_management;
+
+SELECT
+    d.doctor_id,
+    d.name AS doctor_name,
+    dep.department_name
+FROM Doctors d
+INNER JOIN Doctor_Department dd
+    ON d.doctor_id = dd.doctor_id
+INNER JOIN Departments dep
+    ON dd.department_id = dep.department_id;
+-- SQLBook: Markup
